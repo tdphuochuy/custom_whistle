@@ -28,14 +28,31 @@ public class test{
        myThready.start();
        initialize(telnet);
        Thread.sleep(1000);
-       while(true)
+       outer:while(true)
        {
     	   if(checkCondition(telnet,"Order # [[0;7m") && !checkCondition(telnet,"Prod [[0;7m"))
     	   {
     		   telnet.sendCommand(orderNum + "\n");
     	   }
     	   System.out.println("Waiting for production to be ready...");
-           waitResponse(telnet,"Prod [[0;7m");
+           //waitResponse(telnet,"Prod [[0;7m");
+           
+           while(true)
+           {
+   				String response = telnet.getResponse();
+   				if(response.contains("Prod [[0;7m"))
+   				{
+   					break;
+   				} else if (response.contains("ReportProd"))
+   				{
+   					System.out.println("OOPS!! returning to production...");
+   					telnet.sendCommand("1");
+   					Thread.sleep(300);
+   					continue outer;
+   				}
+   	    	   Thread.sleep(300);
+           }
+           
 	       Scanner scanner = new Scanner(System.in);
 	       System.out.println("Enter product code");
 	       String prodNum = scanner.nextLine();
@@ -168,7 +185,7 @@ public class test{
 	public static void setSequence(Telnet telnet,String sequence) throws InterruptedException, IOException
 	{
 		System.out.println("Setting sequence");
-		telnet.sendCommand(sequence + "\n");
+		telnet.sendCommand(sequence);
 	    Thread.sleep(300);
 	    while(!checkCondition(telnet,"([0;7mOkay"))
 		{
@@ -290,6 +307,10 @@ public class test{
 			while(!checkCondition(telnet,"ReportProd"))
 			{
 			       telnet.sendCommand(getArrowKey("esc"));
+			       if(checkCondition(telnet,"Inventory"))
+			       {
+					    telnet.sendCommand("1");
+			       }
 			       Thread.sleep(500);
 			}
 		    telnet.sendCommand("1");
