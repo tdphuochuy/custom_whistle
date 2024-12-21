@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Scanner;
 
 public class test{
-	public static String orderNum = "144076321";
 	public static int count = 0;
 	public static void main(String [] args) throws InterruptedException, IOException
 	{
+	   System.out.println("Enter order number:");
+	   Scanner scanner = new Scanner(System.in);
+	   String orderNum = scanner.nextLine();
        Telnet telnet = new Telnet("167.110.212.137", 23, System.out);
        Thread myThready = new Thread(new Runnable() {
            @Override
@@ -53,7 +55,6 @@ public class test{
    	    	   Thread.sleep(300);
            }
            
-	       Scanner scanner = new Scanner(System.in);
 	       System.out.println("Enter product code");
 	       String prodNum = scanner.nextLine();
 	       System.out.println("Enter quantity");
