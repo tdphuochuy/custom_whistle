@@ -38,7 +38,7 @@ public class test{
     	   }
     	   System.out.println("Waiting for production to be ready...");
            //waitResponse(telnet,"Prod [[0;7m");
-           
+           try {
            while(true)
            {
    				String response = telnet.getResponse();
@@ -88,6 +88,10 @@ public class test{
 	       }
 	       System.out.println("Bulding label");
 	       buildLabel(telnet);
+           } catch (Exception e)
+           {
+        	   e.printStackTrace();
+           }
 	    }
 	}
 	
@@ -246,6 +250,10 @@ public class test{
 		 			Thread.sleep(300);
 		 		}
 			    telnet.sendCommand("\n");
+		    } else if (checkCondition(telnet,"([0;7m  Yes"))
+		    {
+			    telnet.sendCommand("\n");
+	 			Thread.sleep(500);
 		    }
 		}
 		Thread.sleep(300);
@@ -287,6 +295,7 @@ public class test{
 		    telnet.sendCommand(getArrowKey("up"));
 			Thread.sleep(300);
 		}
+		System.out.println("Setting quantity input of " + quantity);
 	    telnet.sendCommand(quantity + "\n");
 	    Thread.sleep(300);
 	    if(checkCondition(telnet,"Full pallet is"))
