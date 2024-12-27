@@ -320,6 +320,11 @@ public class test{
 			       if(checkCondition(telnet,"Inventory"))
 			       {
 					    telnet.sendCommand("1");
+			       } else if (checkCondition(telnet,"Do you really wish to log out"))
+			       {
+				       telnet.sendCommand(getArrowKey("esc"));
+				       Thread.sleep(500);
+					    telnet.sendCommand("2");
 			       }
 			       Thread.sleep(500);
 			}
