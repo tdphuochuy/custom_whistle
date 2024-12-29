@@ -10,11 +10,13 @@ import java.util.Scanner;
 
 public class test{
 	public static int count = 0;
+	public static boolean autoSequence = true;
 	public static void main(String [] args) throws InterruptedException, IOException
 	{
 	   System.out.println("Enter order number:");
 	   Scanner scanner = new Scanner(System.in);
 	   String orderNum = scanner.nextLine();
+	   SequenceGetter sequenceGetter =  new SequenceGetter();
        Telnet telnet = new Telnet("167.110.212.137", 23, System.out);
        Thread myThready = new Thread(new Runnable() {
            @Override
@@ -39,55 +41,82 @@ public class test{
     	   System.out.println("Waiting for production to be ready...");
            //waitResponse(telnet,"Prod [[0;7m");
            try {
-           while(true)
-           {
-   				String response = telnet.getResponse();
-   				if(response.contains("Prod [[0;7m"))
-   				{
-   					break;
-   				} else if (response.contains("ReportProd"))
-   				{
-   					System.out.println("OOPS!! returning to production...");
-   					telnet.sendCommand("1");
-   					Thread.sleep(300);
-   					continue outer;
-   				}
-   	    	   Thread.sleep(300);
-           }
-           
-	       System.out.println("Enter product code");
-	       String prodNum = scanner.nextLine();
-	       System.out.println("Enter quantity");
-	       String quantity = scanner.nextLine();
-	       System.out.println("Enter sequence");
-	       String sequenceInput = scanner.nextLine();
-	       if(prodNum.equals("skip") || quantity.equals("skip") || sequenceInput.equals("skip")) {
-	    	   continue;
-	       }
-	       int sequenceInteger = 1000 + Integer.parseInt(sequenceInput);
-	       String sequence = String.valueOf(sequenceInteger);
-	       
-	                                                                                      
-	       System.out.println("Filling product number");
-	       telnet.sendCommand(prodNum + "\n");
-	       waitResponse(telnet,"Prod [" + prodNum);
-	       System.out.println("Setting quantity");
-	       setQuantity(telnet,quantity);
-	       Thread.sleep(300);
-	       setDate(telnet);
-	       //Thread.sleep(300);
-	       waitResponse(telnet,"Hour");
-	       setHour(telnet);
-	       waitResponse(telnet,"Sequence");
-	       setSequence(telnet,sequence);
-	       if(prodNum.equals("22486"))
-	       {
-	    	   String copiesNum = "4";
-	    	   setCopiesQuantity(telnet,copiesNum);
-	    	   Thread.sleep(300);
-	       }
-	       System.out.println("Bulding label");
-	       buildLabel(telnet);
+	           while(true)
+	           {
+	   				String response = telnet.getResponse();
+	   				if(response.contains("Prod [[0;7m"))
+	   				{
+	   					break;
+	   				} else if (response.contains("ReportProd"))
+	   				{
+	   					System.out.println("OOPS!! returning to production...");
+	   					telnet.sendCommand("1");
+	   					Thread.sleep(300);
+	   					continue outer;
+	   				}
+	   	    	   Thread.sleep(300);
+	           }
+	           
+		       System.out.println("Enter product code");
+		       String prodNum = scanner.nextLine();
+		       System.out.println("Enter quantity");
+		       String quantity = scanner.nextLine();
+		       if(prodNum.equals("skip") || quantity.equals("skip")) {
+		    	   continue;
+		       }
+		                                                                                     
+		       System.out.println("Filling product number");
+		       telnet.sendCommand(prodNum + "\n");
+		       while(true)
+	           {
+	   				String response = telnet.getResponse();
+	   				if(response.contains("Item [[0;7m"))
+	   				{
+	   					break;
+	   				} else if (response.contains("Product not found on order"))
+	   				{
+	   					reset(telnet);
+	   					continue outer;
+	   				}
+	   	    	   Thread.sleep(300);
+	           }
+		       String[] itemPack = getItemPack(telnet);
+		       String itemPackNum = itemPack[0].trim() + itemPack[1].trim();
+		       String sequenceInput;
+		       if(autoSequence)
+		       {
+			       System.out.println("Item hehe: " + itemPack[0]);
+			       System.out.println("Pack hehe: " + itemPack[1]);
+			       sequenceInput =String.valueOf(sequenceGetter.getSequence(orderNum,itemPack[0].trim(),itemPack[1].trim()));
+		       } else {
+		    	   System.out.println("Enter sequence");
+			       sequenceInput = scanner.nextLine();
+		       }
+		       int sequenceInteger = 1000 + Integer.parseInt(sequenceInput);
+		       String sequence = String.valueOf(sequenceInteger);
+		       
+		       System.out.println("Setting quantity");
+		       setQuantity(telnet,quantity);
+		       Thread.sleep(300);
+		       setDate(telnet);
+		       //Thread.sleep(300);
+		       waitResponse(telnet,"Hour");
+		       String hour = setHour(telnet);
+		       waitResponse(telnet,"Sequence");
+		       setSequence(telnet,sequence);
+		       if(prodNum.equals("22486"))
+		       {
+		    	   String copiesNum = "4";
+		    	   setCopiesQuantity(telnet,copiesNum);
+		    	   Thread.sleep(300);
+		       }
+		       System.out.println("Bulding label");
+		       boolean success = buildLabel(telnet);
+		       if(success)
+		       {
+		    	   sequenceGetter.updateSequence(itemPackNum, Integer.valueOf(hour) , Integer.valueOf(sequenceInput));
+		    	   System.out.println(sequenceGetter.getSequenceMap());
+		       }
            } catch (Exception e)
            {
         	   e.printStackTrace();
@@ -95,7 +124,7 @@ public class test{
 	    }
 	}
 	
-	public static void buildLabel(Telnet telnet) throws InterruptedException, IOException
+	public static boolean buildLabel(Telnet telnet) throws InterruptedException, IOException
 	{
 		while(!checkCondition(telnet,"([0;7m  OK"))
 		{
@@ -125,11 +154,14 @@ public class test{
    			}
 			System.out.println("Done!!!");
 			count = count + 1;
-		    System.out.println("Successful builds: " + count);  
+		    System.out.println("Successful builds: " + count);
+		    return true;
 		} else if (buildResponse.equals("Backflush")){
 			reset(telnet);
+			return false;
 		} else {
 			System.out.println(buildResponse);
+			return false;
 		}
 	}
 	
@@ -208,12 +240,14 @@ public class test{
 		}
 	}
 	
-	public static void setHour(Telnet telnet) throws InterruptedException
+	public static String setHour(Telnet telnet) throws InterruptedException
 	{
+		String hour = getHour();
 		System.out.println("Setting hour");
-	    telnet.sendCommand(getHour() + "\n");
+	    telnet.sendCommand(hour + "\n");
 	    Thread.sleep(300);
 	    telnet.sendCommand("\n");
+	    return hour;
 	}
 	
 	public static String getHour()
@@ -231,6 +265,23 @@ public class test{
         
         return String.valueOf(currentHour);
 
+	}
+	
+	
+	public static String[] getItemPack(Telnet telnet) throws InterruptedException
+	{
+		String[] array = new String[2];
+		String response = telnet.getResponse();
+		int itemIndex = response.indexOf("Item [[0;7m") + 12;
+		array[0] = response.substring(itemIndex,itemIndex + 8);
+		if(response.contains("Pack ["))
+		{
+			int packIndex = response.indexOf("Pack [") + 6;
+			array[1] = response.substring(packIndex,packIndex + 6);
+		} else {
+			array[1] = "";
+		}
+		return array;
 	}
 	
 	public static void setDate(Telnet telnet) throws InterruptedException, IOException

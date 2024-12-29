@@ -21,14 +21,14 @@ public class SequenceGetter{
 	String sessionId = "";
 	String username = "pmambo";
 	String pass = "4292";
-	Map<String,List<String>> sequenceMap;
+	Map<String,Map<Integer,Integer>> sequenceMap;
 	public SequenceGetter()
 	{
 		sequenceMap = new HashMap<>();
 		sessionId = getSessionId();
 	}
 	
-	public String getSequence(String orderNum,String item,String pack)
+	public int getSequence(String orderNum,String itemNum,String packNum)
 	{
 		OkHttpClient client = new OkHttpClient();
 		FormBody formBody = new FormBody.Builder()
@@ -49,6 +49,11 @@ public class SequenceGetter{
 				Response response = client.newCall(request).execute()) {
             if (response.code() == 200) {
             	String body = response.body().string();
+            	if(body.contains("Login") && body.contains("Password"))
+            	{
+            		sessionId = getSessionId();
+            		return getSequence(orderNum,itemNum,packNum);
+            	}
             	List<String> blacklist = new ArrayList<>();
             	Document doc = Jsoup.parse(body);
             	Element bodyElement = doc.body();
@@ -62,7 +67,7 @@ public class SequenceGetter{
             			{
             				Element tr = elements.get(i);
             				String content = tr.html();
-            				if(content.contains(item) && content.toLowerCase().contains("pmambo"))
+            				if(content.contains(itemNum) && content.toLowerCase().contains("pmambo"))
             				{
             					String trackingNum = tr.getElementsByTag("a").get(0).text();
             					if(content.contains("#ff0000"))
@@ -74,15 +79,17 @@ public class SequenceGetter{
             					{
             						continue;
             					}
-            					Elements tds = tr.getElementsByAttribute("td");
-            					String itemNum = tds.get(2).text();
-            					String packNum = tds.get(3).text();
-            					if(itemNum.equals(item) && packNum.equals(pack))
+            					Elements tds = tr.getElementsByTag("td");
+            					String webItemNum = tds.get(2).text();
+            					String webPackNum = tds.get(3).text();
+            					if(webItemNum.equals(itemNum) && webPackNum.equals(packNum))
             					{
-            						return tds.get(5).text();
+            						String lotNum = tds.get(5).text();
+            						String hourSequenceText = lotNum.substring(lotNum.length() - 6);
+            						int lotNumHour = Integer.valueOf(hourSequenceText.substring(0,2));
+            						int lotNumSequence = Integer.valueOf(hourSequenceText.substring(2)) - 1000;
+            						return getSequenceLocal(itemNum,packNum,lotNumHour,lotNumSequence);
             					}
-            					
-
             				}
             			}
             			break;
@@ -95,20 +102,63 @@ public class SequenceGetter{
             e.printStackTrace();
         }
 		
-		return getSequenceLocal(item);
+		return getSequenceLocal(itemNum,packNum,getHour(),0);
 	}
 	
-	public String getSequenceLocal(String item)
+	public int getSequenceLocal(String itemNum,String packNum,int hour,int sequence)
 	{
-		String hour = getHour();
-		if(!sequenceMap.keySet().contains(item))
+		String keyName = itemNum + packNum;
+		int currentHour = getHour();
+		if(!sequenceMap.keySet().contains(keyName))
 		{
-			List<String> list = new ArrayList<>();
-			list.add(hour + "1001");
-			sequenceMap.put(item, list);
-			return "1";
+			if(hour != currentHour) //new hour, new itemNum
+			{
+				return 1;
+			} else { //new ItemNum, same hour
+				return sequence + 1;
+			}
+		} else { //if itemNum is existed
+			Map<Integer,Integer> map = sequenceMap.get(keyName);
+			if(hour != currentHour)
+			{
+				if(map.containsKey(currentHour)) //incase website slow to update
+				{
+					int newSequence =  map.get(currentHour) + 1;
+					map.put(currentHour,newSequence);
+					return newSequence;
+				} else { //new hour
+					return 1;
+				}
+			} else { //if hour == currentHour
+				if(map.containsKey(hour))
+				{
+					if(map.get(hour) <= sequence) //missed or current sequence case
+					{
+						int newSequence = sequence + 1;
+						return newSequence;
+					} else {  //website slow to update
+						int newSequence =  map.get(hour) + 1;
+						return newSequence;
+					}
+				} else {
+					int newSequence = sequence + 1;
+					return newSequence;
+				}
+			}
+
+		}
+	}
+	
+	public void updateSequence(String keyName,int hour,int sequence)
+	{
+		if(!sequenceMap.keySet().contains(keyName))
+		{
+			Map<Integer,Integer> map = new HashMap<>();
+			map.put(hour, sequence);
+			sequenceMap.put(keyName, map);
 		} else {
-			
+			Map<Integer,Integer> map = sequenceMap.get(keyName);
+			map.put(hour, sequence);
 		}
 	}
 	
@@ -144,7 +194,7 @@ public class SequenceGetter{
 		return null;
 	}
 	
-	public static String getHour()
+	public int getHour()
 	{
 		LocalTime currentTime = LocalTime.now();
 
@@ -157,7 +207,12 @@ public class SequenceGetter{
         	currentHour += 24;
         }
         
-        return String.valueOf(currentHour);
+        return currentHour;
 
+	}
+	
+	public Map<String,Map<Integer,Integer>> getSequenceMap()
+	{
+		return sequenceMap;
 	}
 }
