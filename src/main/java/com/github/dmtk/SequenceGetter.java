@@ -19,11 +19,13 @@ import okhttp3.Response;
 
 public class SequenceGetter{
 	String sessionId = "";
-	String username = "pmambo";
-	String pass = "4292";
+	String username;;
+	String pass;
 	Map<String,Map<Integer,Integer>> sequenceMap;
-	public SequenceGetter()
+	public SequenceGetter(String username,String password)
 	{
+		this.username = username;
+		this.pass = password;
 		sequenceMap = new HashMap<>();
 		sessionId = getSessionId();
 	}

@@ -11,14 +11,16 @@ import java.util.Scanner;
 public class test{
 	public static int count = 0;
 	public static boolean autoSequence = true;
+	public static String username = "pmambo";
+	public static String password = "4292";
 	public static void main(String [] args) throws InterruptedException, IOException
 	{
 	   System.out.println("Enter order number:");
 	   Scanner scanner = new Scanner(System.in);
 	   String orderNum = scanner.nextLine();
-	   SequenceGetter sequenceGetter =  new SequenceGetter();
+	   SequenceGetter sequenceGetter =  new SequenceGetter(username,password);
        Telnet telnet = new Telnet("167.110.212.137", 23, System.out);
-       Thread myThready = new Thread(new Runnable() {
+       Thread myThread = new Thread(new Runnable() {
            @Override
            public void run() {
 
@@ -29,7 +31,7 @@ public class test{
                }
            }
        });
-       myThready.start();
+       myThread.start();
        initialize(telnet);
        Thread.sleep(1000);
        outer:while(true)
@@ -394,9 +396,9 @@ public class test{
 	       telnet.sendCommand("poultry\n");
 	       waitResponse(telnet,"Logon");
 	       Thread.sleep(1000);
-	       telnet.sendCommand("pmambo\n");
+	       telnet.sendCommand(username + "\n");
 	       Thread.sleep(300);
-	       telnet.sendCommand("4292\n");
+	       telnet.sendCommand(password + "\n");
 	       Thread.sleep(300);
 	       telnet.sendCommand("\n");
 	       waitResponse(telnet,"Split Pallet");
