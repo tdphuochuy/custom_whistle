@@ -13,6 +13,9 @@ public class test{
 	public static boolean autoSequence = true;
 	public static String username = "pmambo";
 	public static String password = "4292";
+	public static boolean ready = true;
+    public static String prodNum;
+    public static String quantity;
 	public static void main(String [] args) throws InterruptedException, IOException
 	{
 	   System.out.println("Enter order number:");
@@ -57,15 +60,18 @@ public class test{
 	   				}
 	   	    	   Thread.sleep(300);
 	           }
-	           
-		       System.out.println("Enter product code");
-		       String prodNum = scanner.nextLine();
-		       System.out.println("Enter quantity");
-		       String quantity = scanner.nextLine();
+	           if(ready)
+	           {
+			       System.out.println("Enter product code");
+			       prodNum = scanner.nextLine();
+			       System.out.println("Enter quantity");
+			       prodNum = scanner.nextLine();
+	           }
 		       if(prodNum.equals("skip") || quantity.equals("skip")) {
+		    	   ready = true;
 		    	   continue;
 		       }
-		                                                                                     
+		       ready = false;
 		       System.out.println("Filling product number");
 		       telnet.sendCommand(prodNum + "\n");
 		       while(true)
@@ -165,9 +171,11 @@ public class test{
 			System.out.println("Done!!!");
 			count = count + 1;
 		    System.out.println("Successful builds: " + count);
+		    ready = true;
 		    return true;
 		} else if (buildResponse.equals("Backflush")){
 			reset(telnet);
+		    ready = true;
 			return false;
 		} else {
 			System.out.println(buildResponse);
