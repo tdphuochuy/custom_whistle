@@ -238,11 +238,15 @@ public class Telnet extends Terminal implements Runnable, TelnetNotificationHand
     public String getResponse()
     {
     	String responseFull = "";
-    	for(String response : responseList)
-		{
-    		responseFull = responseFull + response;
-		}
-    	
+    	try {
+	    	for(String response : responseList)
+			{
+	    		responseFull = responseFull + response;
+			}
+    	} catch (Exception e)
+    	{
+    		
+    	}
     	return responseFull;
     }
     

@@ -19,11 +19,13 @@ import okhttp3.Response;
 
 public class SequenceGetter{
 	String sessionId = "";
-	String username = "pmambo";
-	String pass = "4292";
+	String username;;
+	String pass;
 	Map<String,Map<Integer,Integer>> sequenceMap;
-	public SequenceGetter()
+	public SequenceGetter(String username,String password)
 	{
+		this.username = username;
+		this.pass = password;
 		sequenceMap = new HashMap<>();
 		sessionId = getSessionId();
 	}
@@ -49,6 +51,11 @@ public class SequenceGetter{
 				Response response = client.newCall(request).execute()) {
             if (response.code() == 200) {
             	String body = response.body().string();
+            	if(body.contains("Login") && body.contains("Password"))
+            	{
+            		sessionId = getSessionId();
+            		return getSequence(orderNum,itemNum,packNum);
+            	}
             	List<String> blacklist = new ArrayList<>();
             	Document doc = Jsoup.parse(body);
             	Element bodyElement = doc.body();
@@ -82,7 +89,7 @@ public class SequenceGetter{
             						String lotNum = tds.get(5).text();
             						String hourSequenceText = lotNum.substring(lotNum.length() - 6);
             						int lotNumHour = Integer.valueOf(hourSequenceText.substring(0,2));
-            						int lotNumSequence = Integer.valueOf(hourSequenceText.substring(2));
+            						int lotNumSequence = Integer.valueOf(hourSequenceText.substring(2)) - 1000;
             						return getSequenceLocal(itemNum,packNum,lotNumHour,lotNumSequence);
             					}
             				}
@@ -97,7 +104,7 @@ public class SequenceGetter{
             e.printStackTrace();
         }
 		
-		return getSequenceLocal(itemNum,packNum,getHour(),1);
+		return getSequenceLocal(itemNum,packNum,getHour(),0);
 	}
 	
 	public int getSequenceLocal(String itemNum,String packNum,int hour,int sequence)
@@ -108,14 +115,8 @@ public class SequenceGetter{
 		{
 			if(hour != currentHour) //new hour, new itemNum
 			{
-				Map<Integer,Integer> map = new HashMap<>();
-				map.put(currentHour, 1);
-				sequenceMap.put(keyName, map);
 				return 1;
 			} else { //new ItemNum, same hour
-				Map<Integer,Integer> map = new HashMap<>();
-				map.put(currentHour, sequence + 1);
-				sequenceMap.put(keyName, map);
 				return sequence + 1;
 			}
 		} else { //if itemNum is existed
@@ -126,11 +127,8 @@ public class SequenceGetter{
 				{
 					int newSequence =  map.get(currentHour) + 1;
 					map.put(currentHour,newSequence);
-					//sequenceMap.put(packNum + itemNum, map);
 					return newSequence;
 				} else { //new hour
-					map.put(currentHour, 1);
-					//sequenceMap.put(packNum + itemNum, map);
 					return 1;
 				}
 			} else { //if hour == currentHour
@@ -139,22 +137,30 @@ public class SequenceGetter{
 					if(map.get(hour) <= sequence) //missed or current sequence case
 					{
 						int newSequence = sequence + 1;
-						map.put(hour, newSequence);
-						//sequenceMap.put(packNum + itemNum, map);
 						return newSequence;
 					} else {  //website slow to update
 						int newSequence =  map.get(hour) + 1;
-						map.put(hour, newSequence);
-						//sequenceMap.put(packNum + itemNum, map);
 						return newSequence;
 					}
 				} else {
 					int newSequence = sequence + 1;
-					map.put(hour, newSequence);
 					return newSequence;
 				}
 			}
 
+		}
+	}
+	
+	public void updateSequence(String keyName,int hour,int sequence)
+	{
+		if(!sequenceMap.keySet().contains(keyName))
+		{
+			Map<Integer,Integer> map = new HashMap<>();
+			map.put(hour, sequence);
+			sequenceMap.put(keyName, map);
+		} else {
+			Map<Integer,Integer> map = sequenceMap.get(keyName);
+			map.put(hour, sequence);
 		}
 	}
 	
@@ -205,5 +211,10 @@ public class SequenceGetter{
         
         return currentHour;
 
+	}
+	
+	public Map<String,Map<Integer,Integer>> getSequenceMap()
+	{
+		return sequenceMap;
 	}
 }
