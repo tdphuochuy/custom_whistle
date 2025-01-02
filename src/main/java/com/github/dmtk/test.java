@@ -497,5 +497,10 @@ public class test{
 
 	    return arrowCommand;
 	}
+	
+	public static boolean isReady()
+	{
+		return ready;
+	}
 
 }
