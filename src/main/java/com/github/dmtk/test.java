@@ -92,8 +92,8 @@ public class test{
 		       String sequenceInput;
 		       if(autoSequence)
 		       {
-			       System.out.println("Item hehe: " + itemPack[0]);
-			       System.out.println("Pack hehe: " + itemPack[1]);
+			       System.out.println("Item: " + itemPack[0]);
+			       System.out.println("Pack: " + itemPack[1]);
 			       sequenceInput =String.valueOf(sequenceGetter.getSequence(orderNum,itemPack[0].trim(),itemPack[1].trim()));
 		       } else {
 		    	   System.out.println("Enter sequence");
