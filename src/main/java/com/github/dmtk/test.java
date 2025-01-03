@@ -65,7 +65,7 @@ public class test{
 			       System.out.println("Enter product code");
 			       prodNum = scanner.nextLine();
 			       System.out.println("Enter quantity");
-			       prodNum = scanner.nextLine();
+			       quantity = scanner.nextLine();
 	           }
 		       if(prodNum.equals("skip") || quantity.equals("skip")) {
 		    	   ready = true;
