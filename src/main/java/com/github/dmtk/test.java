@@ -164,6 +164,10 @@ public class test{
 			setKillDate(telnet);
 			while(!checkCondition(telnet,"Order # [[0;7m"))
    			{
+				if(checkCondition(telnet,"Updating lot table"))
+				{
+					System.out.println("Updating lot table...");
+				}
 				System.out.println("Looking for new order");
    		    	telnet.sendCommand("\n");
    		    	Thread.sleep(300);
