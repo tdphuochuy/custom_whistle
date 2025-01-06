@@ -164,7 +164,7 @@ public class test{
 			setKillDate(telnet);
 			while(!checkCondition(telnet,"Order # [[0;7m"))
    			{
-				if(checkCondition(telnet,"Updating lot table"))
+				if(checkCondition(telnet,"Updating Lot Table"))
 				{
 					System.out.println("Updating lot table...");
 				}
@@ -493,8 +493,11 @@ public class test{
 	            arrowCommand = "\u001B[D";  // Left Arrow
 	            break;
 	        case "esc":
-	            arrowCommand = "\u001B";  // Left Arrow
+	            arrowCommand = "\u001B";  // Esc key
 	            break;
+	        case "backspace":
+	        	arrowCommand = "\u0008";
+	        	break;
 	        default:
 	            throw new IllegalArgumentException("Invalid arrow key: " + arrowKey);
 	    }
