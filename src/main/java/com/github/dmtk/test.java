@@ -11,8 +11,8 @@ import java.util.Scanner;
 public class test{
 	public static int count = 0;
 	public static boolean autoSequence = true;
-	public static String username = "pmambo";
-	public static String password = "4292";
+	public static String username = "pmambo"; //vberry
+	public static String password = "4292"; //Berrys20
 	public static boolean ready = true;
     public static String prodNum;
     public static String quantity;
@@ -164,9 +164,14 @@ public class test{
 			setKillDate(telnet);
 			while(!checkCondition(telnet,"Order # [[0;7m"))
    			{
-				if(checkCondition(telnet,"Updating lot table"))
+				if(checkCondition(telnet,"Lot Table"))
 				{
 					System.out.println("Updating lot table...");
+				} else if (checkCondition(telnet,"Entry must appear"))
+				{
+					telnet.sendCommand("\n");
+					telnet.sendCommand(getArrowKey("backspace"));
+					setKillDate(telnet);
 				}
 				System.out.println("Looking for new order");
    		    	telnet.sendCommand("\n");
@@ -493,8 +498,11 @@ public class test{
 	            arrowCommand = "\u001B[D";  // Left Arrow
 	            break;
 	        case "esc":
-	            arrowCommand = "\u001B";  // Left Arrow
+	            arrowCommand = "\u001B";  // Esc key
 	            break;
+	        case "backspace": //backspace
+	        	arrowCommand = "\u0008";
+	        	break;
 	        default:
 	            throw new IllegalArgumentException("Invalid arrow key: " + arrowKey);
 	    }

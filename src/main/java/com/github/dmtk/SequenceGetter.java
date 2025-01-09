@@ -69,7 +69,7 @@ public class SequenceGetter{
             			{
             				Element tr = elements.get(i);
             				String content = tr.html();
-            				if(content.contains(itemNum) && content.toLowerCase().contains("pmambo"))
+            				if(content.contains(itemNum) && content.toLowerCase().contains(username.toLowerCase()))
             				{
             					String trackingNum = tr.getElementsByTag("a").get(0).text();
             					if(content.contains("#ff0000"))
