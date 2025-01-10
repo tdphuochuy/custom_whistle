@@ -135,6 +135,9 @@ public class test{
 		       {
 		    	   sequenceGetter.updateSequence(itemPackNum, Integer.valueOf(hour) , Integer.valueOf(sequenceInput));
 		    	   System.out.println(sequenceGetter.getSequenceMap());
+		       } else {
+		    	   reset(telnet);
+		    	   continue;
 		       }
            } catch (Exception e)
            {
@@ -230,8 +233,10 @@ public class test{
 	
 	public static String checkBuildResponse(Telnet telnet) throws InterruptedException
 	{
+		int count = 0;
 		while(true)
 		{
+			count++;
 			System.out.println("Checking build response...");
 			String response = telnet.getResponse();
 			if(response.contains("Ready to build"))
@@ -245,6 +250,10 @@ public class test{
 				telnet.sendCommand("\n");
 			}
 			Thread.sleep(300);
+			if(count > 30)
+			{
+				return "timeout";
+			}
 		}
 	}
 	
