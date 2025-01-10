@@ -113,12 +113,15 @@ public class test{
 		    	   continue;   
 		       }
 		       //Thread.sleep(300);
-		       waitResponse(telnet,"Hour");
+		       if(!waitResponseCount(telnet,"Hour"))
+		       {
+		    	   continue;
+		       }
 		       String hour = setHour(telnet);
 		       waitResponse(telnet,"Sequence");
 		       if(!setSequence(telnet,sequence))
 		       {
-		    	   continue;   
+		    	   continue;
 		       }
 		       if(prodNum.equals("22486"))
 		       {
@@ -479,6 +482,26 @@ public class test{
 					break outer;
 				}
 	    	   Thread.sleep(300);
+        }
+	}
+	
+	public static boolean waitResponseCount(Telnet telnet,String condition) throws InterruptedException, IOException
+	{
+		int count = 0;
+		while(true)
+        {
+				count++;
+				String response = telnet.getResponse();
+				if(response.contains(condition))
+				{
+					return true;
+				}
+	    	   Thread.sleep(300);
+	    	   if(count > 30)
+	    	   {		
+					reset(telnet);
+					return false;
+	    	   }
         }
 	}
 	
