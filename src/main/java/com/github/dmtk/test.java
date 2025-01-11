@@ -177,6 +177,7 @@ public class test{
 				{
 					telnet.sendCommand("\n");
 					telnet.sendCommand(getArrowKey("backspace"));
+					Thread.sleep(500);
 					setKillDate(telnet);
 				}
 				System.out.println("Looking for new order");
