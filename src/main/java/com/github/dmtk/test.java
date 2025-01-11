@@ -11,8 +11,8 @@ import java.util.Scanner;
 public class test{
 	public static int count = 0;
 	public static boolean autoSequence = true;
-	public static String username = "pmambo";
-	public static String password = "4292";
+	public static String username = "pmambo"; //vberry
+	public static String password = "4292"; //Berrys20
 	public static boolean ready = true;
     public static String prodNum;
     public static String quantity;
@@ -113,12 +113,15 @@ public class test{
 		    	   continue;   
 		       }
 		       //Thread.sleep(300);
-		       waitResponse(telnet,"Hour");
+		       if(!waitResponseCount(telnet,"Hour"))
+		       {
+		    	   continue;
+		       }
 		       String hour = setHour(telnet);
 		       waitResponse(telnet,"Sequence");
 		       if(!setSequence(telnet,sequence))
 		       {
-		    	   continue;   
+		    	   continue;
 		       }
 		       if(prodNum.equals("22486"))
 		       {
@@ -132,6 +135,9 @@ public class test{
 		       {
 		    	   sequenceGetter.updateSequence(itemPackNum, Integer.valueOf(hour) , Integer.valueOf(sequenceInput));
 		    	   System.out.println(sequenceGetter.getSequenceMap());
+		       } else {
+		    	   reset(telnet);
+		    	   continue;
 		       }
            } catch (Exception e)
            {
@@ -164,9 +170,14 @@ public class test{
 			setKillDate(telnet);
 			while(!checkCondition(telnet,"Order # [[0;7m"))
    			{
-				if(checkCondition(telnet,"Updating Lot Table"))
+				if(checkCondition(telnet,"Lot Table"))
 				{
 					System.out.println("Updating lot table...");
+				} else if (checkCondition(telnet,"Entry must appear"))
+				{
+					telnet.sendCommand("\n");
+					telnet.sendCommand(getArrowKey("backspace"));
+					setKillDate(telnet);
 				}
 				System.out.println("Looking for new order");
    		    	telnet.sendCommand("\n");
@@ -222,8 +233,10 @@ public class test{
 	
 	public static String checkBuildResponse(Telnet telnet) throws InterruptedException
 	{
+		int count = 0;
 		while(true)
 		{
+			count++;
 			System.out.println("Checking build response...");
 			String response = telnet.getResponse();
 			if(response.contains("Ready to build"))
@@ -237,6 +250,10 @@ public class test{
 				telnet.sendCommand("\n");
 			}
 			Thread.sleep(300);
+			if(count > 30)
+			{
+				return "timeout";
+			}
 		}
 	}
 	
@@ -477,6 +494,26 @@ public class test{
         }
 	}
 	
+	public static boolean waitResponseCount(Telnet telnet,String condition) throws InterruptedException, IOException
+	{
+		int count = 0;
+		while(true)
+        {
+				count++;
+				String response = telnet.getResponse();
+				if(response.contains(condition))
+				{
+					return true;
+				}
+	    	   Thread.sleep(300);
+	    	   if(count > 30)
+	    	   {		
+					reset(telnet);
+					return false;
+	    	   }
+        }
+	}
+	
 	public static String getArrowKey(String arrowKey) throws IOException {
 	    String arrowCommand;
 	    switch (arrowKey.toLowerCase()) {
@@ -495,7 +532,7 @@ public class test{
 	        case "esc":
 	            arrowCommand = "\u001B";  // Esc key
 	            break;
-	        case "backspace":
+	        case "backspace": //backspace
 	        	arrowCommand = "\u0008";
 	        	break;
 	        default:
