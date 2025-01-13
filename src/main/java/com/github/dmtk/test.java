@@ -13,11 +13,12 @@ public class test{
 	public static boolean autoSequence = true;
 	public static String username = "pmambo"; //vberry
 	public static String password = "4292"; //Berrys20
-	public static boolean ready = true;
+	public static boolean ready;
     public static String prodNum;
     public static String quantity;
 	public static void main(String [] args) throws InterruptedException, IOException
 	{
+	   ready = false;
 	   System.out.println("Enter order number:");
 	   Scanner scanner = new Scanner(System.in);
 	   String orderNum = scanner.nextLine();
@@ -35,6 +36,7 @@ public class test{
        });
        myThread.start();
        initialize(telnet);
+       ready = true;
        Thread.sleep(1000);
        outer:while(true)
        {
@@ -469,7 +471,6 @@ public class test{
 	       Thread.sleep(300);
 	       telnet.sendCommand("1");
 	       waitResponse(telnet,"Order #");
-
 	}
 	
 	public static boolean checkCondition(Telnet telnet,String condition)
