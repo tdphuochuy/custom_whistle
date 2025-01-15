@@ -85,6 +85,7 @@ public class test{
 	   				} else if (response.contains("Product not found on order"))
 	   				{
 	   					reset(telnet);
+	   					ready = true;
 	   					continue outer;
 	   				}
 	   	    	   Thread.sleep(300);
