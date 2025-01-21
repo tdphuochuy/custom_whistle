@@ -157,7 +157,12 @@ public class test{
 			{
 				telnet.sendCommand("\n");
 			} else {
-				telnet.sendCommand(getArrowKey("up"));
+				if(prodNum.equals("22486"))
+				{
+					telnet.sendCommand(getArrowKey("down"));
+				} else {
+					telnet.sendCommand(getArrowKey("up"));
+				}
 			}
 			Thread.sleep(300);
 		}
