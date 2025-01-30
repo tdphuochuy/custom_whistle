@@ -73,6 +73,11 @@ public class test{
 		    	   ready = true;
 		    	   continue;
 		       }
+		       if(prodNum.length() == 0 || quantity.length() == 0) {
+		    	   System.out.println("Missing required info, skipping...");
+		    	   ready = true;
+		    	   continue;
+		       }
 		       ready = false;
 		       System.out.println("Filling product number");
 		       telnet.sendCommand(prodNum + "\n");
@@ -157,7 +162,12 @@ public class test{
 			{
 				telnet.sendCommand("\n");
 			} else {
-				telnet.sendCommand(getArrowKey("up"));
+				if(prodNum.equals("22486"))
+				{
+					telnet.sendCommand(getArrowKey("down"));
+				} else {
+					telnet.sendCommand(getArrowKey("up"));
+				}
 			}
 			Thread.sleep(300);
 		}

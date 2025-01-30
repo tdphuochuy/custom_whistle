@@ -1,5 +1,6 @@
 package com.github.dmtk;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -9,8 +10,9 @@ public class TelnetManager{
 	public static boolean autoSequence = true;
 	public static int workerNum = 3;
 	public static List<whistleWorker> workerList;
-	public static void main(String [] args)
+	public static void main(String [] args) throws InterruptedException
 	{
+		workerList = new ArrayList<>();
 		System.out.println("Enter order number:");
 		Scanner scanner = new Scanner(System.in);
 		String orderNum = scanner.nextLine();
@@ -28,6 +30,7 @@ public class TelnetManager{
 			});
 	
 	        initThread.start();
+	        Thread.sleep(5000);
 		}
 		while(true)
 		{
