@@ -275,7 +275,12 @@ public class test{
 	public static boolean setSequence(Telnet telnet,String sequence) throws InterruptedException, IOException
 	{
 		System.out.println("Setting sequence");
-		telnet.sendCommand(sequence);
+		if(prodNum.equals("12623"))
+		{
+			telnet.sendCommand("0");
+		} else {
+			telnet.sendCommand(sequence);
+		}
 	    Thread.sleep(300);
 	    int count = 0;
 	    while(!checkCondition(telnet,"([0;7mOkay"))
@@ -305,7 +310,12 @@ public class test{
 	{
 		String hour = getHour();
 		System.out.println("Setting hour");
-	    telnet.sendCommand(hour + "\n");
+		if(prodNum.equals("12623"))
+		{
+			telnet.sendCommand("98\n");
+		} else {
+			telnet.sendCommand(hour + "\n");
+		}
 	    Thread.sleep(300);
 	    telnet.sendCommand("\n");
 	    return hour;
