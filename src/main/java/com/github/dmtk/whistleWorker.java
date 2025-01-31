@@ -18,7 +18,7 @@ public class whistleWorker implements Runnable{
     public String prodNum;
     public String quantity;
     public String sequenceInput;
-    public Telnet telnet;
+    private Telnet telnet;
     public SequenceGetter sequenceGetter;
     public whistleWorker(String orderNum,String username,String password,SequenceGetter sequenceGetter,boolean autoSequence){
 		this.orderNum = orderNum;
@@ -86,7 +86,7 @@ public class whistleWorker implements Runnable{
 	   				} else if (response.contains("Product not found on order"))
 	   				{
 	   					reset(telnet);
-	   					continue outer;
+	   					break;
 	   				}
 	   	    	   Thread.sleep(300);
 	           }
@@ -469,6 +469,7 @@ public class whistleWorker implements Runnable{
 	       telnet.sendCommand("1");
 	       waitResponse(telnet,"Order #");
 	       ready = true;
+	       System.out.println("Worker ready!");
 	}
 	
 	public boolean checkCondition(Telnet telnet,String condition)
