@@ -18,7 +18,7 @@ public class whistleWorker implements Runnable{
     public String prodNum;
     public String quantity;
     public String sequenceInput;
-    public Telnet telnet;
+    private Telnet telnet;
     public SequenceGetter sequenceGetter;
     public whistleWorker(String orderNum,String username,String password,SequenceGetter sequenceGetter,boolean autoSequence){
 		this.orderNum = orderNum;

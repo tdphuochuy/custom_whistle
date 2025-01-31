@@ -8,7 +8,7 @@ public class TelnetManager{
 	public static String username = "pmambo";
 	public static String password = "4292";
 	public static boolean autoSequence = true;
-	public static int workerNum = 3;
+	public static int workerNum = 2;
 	public static List<whistleWorker> workerList;
 	public static void main(String [] args) throws InterruptedException
 	{

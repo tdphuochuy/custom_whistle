@@ -69,10 +69,6 @@ public class test{
 			       System.out.println("Enter quantity");
 			       quantity = scanner.nextLine();
 	           }
-		       if(prodNum.equals("skip") || quantity.equals("skip")) {
-		    	   ready = true;
-		    	   continue;
-		       }
 		       if(prodNum.length() == 0 || quantity.length() == 0) {
 		    	   System.out.println("Missing required info, skipping...");
 		    	   ready = true;
