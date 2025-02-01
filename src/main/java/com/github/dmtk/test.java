@@ -457,13 +457,18 @@ public class test{
 			       } else if (checkCondition(telnet,"Do you really wish to log out"))
 			       {
 				       telnet.sendCommand(getArrowKey("esc"));
-				       Thread.sleep(500);
+				       Thread.sleep(700);
+					    telnet.sendCommand("2");
+			       } else if (checkCondition(telnet,"Yes"))
+			       {
+				       telnet.sendCommand(getArrowKey("esc"));
+				       Thread.sleep(700);
 					    telnet.sendCommand("2");
 			       }
-			       Thread.sleep(500);
+			       Thread.sleep(1000);
 			}
 		    telnet.sendCommand("1");
-		    Thread.sleep(500);
+		    Thread.sleep(700);
 		}
 	}
 	
