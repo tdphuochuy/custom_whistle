@@ -451,6 +451,7 @@ public class test{
 			while(!checkCondition(telnet,"ReportProd"))
 			{
 			       telnet.sendCommand(getArrowKey("esc"));
+			       Thread.sleep(700);
 			       if(checkCondition(telnet,"Inventory"))
 			       {
 					    telnet.sendCommand("1");
@@ -465,7 +466,7 @@ public class test{
 				       Thread.sleep(700);
 					    telnet.sendCommand("2");
 			       }
-			       Thread.sleep(1000);
+			       Thread.sleep(700);
 			}
 		    telnet.sendCommand("1");
 		    Thread.sleep(700);
