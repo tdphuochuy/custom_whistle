@@ -56,7 +56,7 @@ public class test{
 	   				} else if (response.contains("ReportProd"))
 	   				{
 	   					System.out.println("OOPS!! returning to production...");
-	   					telnet.sendCommand("1");
+	   					reset(telnet);
 	   					Thread.sleep(300);
 	   					continue outer;
 	   				}
