@@ -46,7 +46,7 @@ public class Telnet extends Terminal implements Runnable, TelnetNotificationHand
         end_loop = false;
         FileOutputStream fout = null;
         try {
-            fout = new FileOutputStream("spy.log", true);
+            fout = new FileOutputStream("file.log", true);
         } catch (IOException ex) {
             log.error(ex);
         }

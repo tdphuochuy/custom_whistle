@@ -3,57 +3,35 @@ package com.github.dmtk;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class TelnetManager{
-	public static String username = "pmambo";
-	public static String password = "4292";
-	public static boolean autoSequence = true;
-	public static int workerNum = 2;
-	public static List<whistleWorker> workerList;
-	public static void main(String [] args) throws InterruptedException
+	private final BlockingQueue<Command> queue = new LinkedBlockingQueue<>();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private whistleWorker worker;
+	public TelnetManager(String orderNum,String username,String password,boolean autoSequence) throws InterruptedException
 	{
-		workerList = new ArrayList<>();
-		System.out.println("Enter order number:");
-		Scanner scanner = new Scanner(System.in);
-		String orderNum = scanner.nextLine();
-		SequenceGetter getter = new SequenceGetter(username,password);
-		for(int i = 0; i < workerNum;i++)
-		{
-			whistleWorker worker = new whistleWorker(orderNum,username,password,getter,autoSequence);
-			workerList.add(worker);
-			Thread initThread = new Thread(() -> {
-				try {
-	                worker.initialize();
-	            } catch (InterruptedException e) {
-	                e.printStackTrace();
-	            }
-			});
-	
-	        initThread.start();
-	        Thread.sleep(5000);
-		}
-		while(true)
-		{
-			System.out.println("Enter product code");
-			String prodNum = scanner.nextLine();
-			System.out.println("Enter quantity");
-			String quantity = scanner.nextLine();
-			String sequenceInput = "1";
-			if(!autoSequence)
-			{
-				System.out.println("Enter sequence");
-				sequenceInput = scanner.nextLine();
-			}
-			for(whistleWorker worker: workerList)
-			{
-				if(worker.isReady())
-				{
-					worker.setLabelData(prodNum, quantity, sequenceInput);
-					Thread workerThread = new Thread(worker);
-			        workerThread.start();
-			        break;
-				}
-			}
-		}
+		SequenceGetter sequenceGetter = new SequenceGetter(username,password);
+		worker = new whistleWorker(orderNum, username, password, sequenceGetter,autoSequence);
+        executor.submit(this::processCommands);
 	}
+	
+	public void addCommand(Command command) {
+        queue.offer(command);
+    }
+	
+	 private void processCommands() {
+	        while (true) {
+	            try {
+	                Command command = queue.take();
+	                worker.process(command);
+	            } catch (InterruptedException e) {
+	                Thread.currentThread().interrupt();
+	                break;
+	            }
+	        }
+	    }
 }

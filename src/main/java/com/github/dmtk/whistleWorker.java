@@ -8,25 +8,24 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
-public class whistleWorker implements Runnable{
+public class whistleWorker{
 	public int count = 0;
 	public boolean autoSequence;
 	public String username;
 	public String password;
 	public String orderNum;
-	public boolean ready;
     public String prodNum;
     public String quantity;
     public String sequenceInput;
     private Telnet telnet;
     public SequenceGetter sequenceGetter;
-    public whistleWorker(String orderNum,String username,String password,SequenceGetter sequenceGetter,boolean autoSequence){
+    public whistleWorker(String orderNum,String username,String password,SequenceGetter sequenceGetter,boolean autoSequence) throws InterruptedException{
 		this.orderNum = orderNum;
 		this.username = username;
 		this.password = password;
 		this.sequenceGetter = sequenceGetter;
 		this.autoSequence = autoSequence;
-		this.ready = false;
+		initialize();
 	}
     
     public void initialize() throws InterruptedException
@@ -48,9 +47,9 @@ public class whistleWorker implements Runnable{
 		Thread.sleep(1000);
     }
     
-	public void run()
+	public void process(Command command)
 	{
-	   ready = false;
+	   setData(command);
        outer:while(true)
        {
     	   if(checkCondition(telnet,"Order # [[0;7m") && !checkCondition(telnet,"Prod [[0;7m"))
@@ -134,7 +133,6 @@ public class whistleWorker implements Runnable{
 		       {
 		    	   sequenceGetter.updateSequence(itemPackNum, Integer.valueOf(hour) , Integer.valueOf(sequenceInput));
 		    	   System.out.println(sequenceGetter.getSequenceMap());
-		    	   ready = true;
 		    	   break;
 		       } else {
 		    	   reset(telnet);
@@ -155,7 +153,12 @@ public class whistleWorker implements Runnable{
 			{
 				telnet.sendCommand("\n");
 			} else {
-				telnet.sendCommand(getArrowKey("up"));
+				if(prodNum.equals("22486"))
+				{
+					telnet.sendCommand(getArrowKey("down"));
+				} else {
+					telnet.sendCommand(getArrowKey("up"));
+				}
 			}
 			Thread.sleep(300);
 		}
@@ -261,7 +264,12 @@ public class whistleWorker implements Runnable{
 	public boolean setSequence(Telnet telnet,String sequence) throws InterruptedException, IOException
 	{
 		System.out.println("Setting sequence");
-		telnet.sendCommand(sequence);
+		if(prodNum.equals("12623"))
+		{
+			telnet.sendCommand("0");
+		} else {
+			telnet.sendCommand(sequence);
+		}
 	    Thread.sleep(300);
 	    int count = 0;
 	    while(!checkCondition(telnet,"([0;7mOkay"))
@@ -291,7 +299,12 @@ public class whistleWorker implements Runnable{
 	{
 		String hour = getHour();
 		System.out.println("Setting hour");
-	    telnet.sendCommand(hour + "\n");
+		if(prodNum.equals("12623"))
+		{
+			telnet.sendCommand("98\n");
+		} else {
+			telnet.sendCommand(hour + "\n");
+		}
 	    Thread.sleep(300);
 	    telnet.sendCommand("\n");
 	    return hour;
@@ -431,19 +444,25 @@ public class whistleWorker implements Runnable{
 			while(!checkCondition(telnet,"ReportProd"))
 			{
 			       telnet.sendCommand(getArrowKey("esc"));
+			       Thread.sleep(700);
 			       if(checkCondition(telnet,"Inventory"))
 			       {
 					    telnet.sendCommand("1");
 			       } else if (checkCondition(telnet,"Do you really wish to log out"))
 			       {
 				       telnet.sendCommand(getArrowKey("esc"));
-				       Thread.sleep(500);
+				       Thread.sleep(700);
+					    telnet.sendCommand("2");
+			       } else if (checkCondition(telnet,"Yes"))
+			       {
+				       telnet.sendCommand(getArrowKey("esc"));
+				       Thread.sleep(700);
 					    telnet.sendCommand("2");
 			       }
-			       Thread.sleep(500);
+			       Thread.sleep(700);
 			}
 		    telnet.sendCommand("1");
-		    Thread.sleep(500);
+		    Thread.sleep(700);
 		}
 	}
 	
@@ -468,7 +487,6 @@ public class whistleWorker implements Runnable{
 	       Thread.sleep(300);
 	       telnet.sendCommand("1");
 	       waitResponse(telnet,"Order #");
-	       ready = true;
 	       System.out.println("Worker ready!");
 	}
 	
@@ -543,16 +561,11 @@ public class whistleWorker implements Runnable{
 	    return arrowCommand;
 	}
 	
-	public boolean isReady()
+	public void setData(Command command)
 	{
-		return ready;
-	}
-	
-	public void setLabelData(String prodNum,String quantity,String sequenceInput)
-	{
-		this.prodNum = prodNum;
-		this.quantity = quantity;
-		this.sequenceInput = sequenceInput;
+		this.prodNum = command.getProdNum();
+		this.quantity = command.getQuantity();
+		this.sequenceInput = command.getSequence();
 	}
 
 }
