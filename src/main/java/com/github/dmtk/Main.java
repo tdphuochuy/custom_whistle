@@ -28,6 +28,10 @@ public class Main{
 				System.out.println("Enter sequence");
 				sequence = scanner.nextLine();
 			}
+			if(prodNum.length() == 0 || quantity.length() == 0) {
+		    	   System.out.println("Missing required info, skipping...");
+		    	   continue;
+		    }
 			manager.addCommand(new Command(prodNum,quantity,sequence));
 		}
 	}

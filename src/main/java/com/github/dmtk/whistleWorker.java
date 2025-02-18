@@ -468,6 +468,7 @@ public class whistleWorker{
 	
 	public void initialize(Telnet telnet) throws InterruptedException
 	{
+		   System.out.println("Loggining in (1)");
 	       Thread.sleep(1000);
 	       telnet.sendCommand("pdgwinterm7\n");
 	       Thread.sleep(300);
@@ -476,6 +477,7 @@ public class whistleWorker{
 	       telnet.sendCommand("poultry\n");
 	       waitResponse(telnet,"Logon");
 	       Thread.sleep(1000);
+		   System.out.println("Loggining in (2): " + username);
 	       telnet.sendCommand(username + "\n");
 	       Thread.sleep(300);
 	       telnet.sendCommand(password + "\n");
