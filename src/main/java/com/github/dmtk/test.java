@@ -199,7 +199,6 @@ public class test{
 		    ready = true;
 		    return true;
 		} else if (buildResponse.equals("Backflush")){
-			reset(telnet);
 		    ready = true;
 			return false;
 		} else {

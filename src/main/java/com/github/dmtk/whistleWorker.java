@@ -18,6 +18,7 @@ public class whistleWorker{
     public String quantity;
     public String sequenceInput;
     private Telnet telnet;
+	private boolean backflush;
     public SequenceGetter sequenceGetter;
     public whistleWorker(String orderNum,String username,String password,SequenceGetter sequenceGetter,boolean autoSequence) throws InterruptedException{
 		this.orderNum = orderNum;
@@ -50,6 +51,7 @@ public class whistleWorker{
 	public void process(Command command)
 	{
 	   setData(command);
+	   backflush = false;
        outer:while(true)
        {
     	   if(checkCondition(telnet,"Order # [[0;7m") && !checkCondition(telnet,"Prod [[0;7m"))
@@ -135,8 +137,13 @@ public class whistleWorker{
 		    	   System.out.println(sequenceGetter.getSequenceMap());
 		    	   break;
 		       } else {
-		    	   reset(telnet);
-		    	   continue;
+		    	   if(backflush)
+		    	   {
+		    		   break;
+		    	   } else {
+		    		   reset(telnet);
+		    		   continue;
+		    	   }
 		       }
            } catch (Exception e)
            {
@@ -193,7 +200,7 @@ public class whistleWorker{
 		    System.out.println("Successful builds: " + count);
 		    return true;
 		} else if (buildResponse.equals("Backflush")){
-			reset(telnet);
+			backflush = true;
 			return false;
 		} else {
 			System.out.println(buildResponse);
