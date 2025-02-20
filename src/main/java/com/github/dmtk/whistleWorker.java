@@ -19,6 +19,7 @@ public class whistleWorker{
     public String sequenceInput;
     private Telnet telnet;
 	private boolean backflush;
+	private boolean notfound;
     public SequenceGetter sequenceGetter;
     public whistleWorker(String orderNum,String username,String password,SequenceGetter sequenceGetter,boolean autoSequence) throws InterruptedException{
 		this.orderNum = orderNum;
@@ -52,6 +53,7 @@ public class whistleWorker{
 	{
 	   setData(command);
 	   backflush = false;
+	   notfound = false;
        outer:while(true)
        {
     	   if(checkCondition(telnet,"Order # [[0;7m") && !checkCondition(telnet,"Prod [[0;7m"))
@@ -86,11 +88,16 @@ public class whistleWorker{
 	   					break;
 	   				} else if (response.contains("Product not found on order"))
 	   				{
+	   					notfound = true;
 	   					reset(telnet);
 	   					break;
 	   				}
 	   	    	   Thread.sleep(300);
 	           }
+		       if(notfound)
+		       {
+		    	   break;
+		       }
 		       String[] itemPack = getItemPack(telnet);
 		       String itemPackNum = itemPack[0].trim() + itemPack[1].trim();
 		       if(autoSequence)
