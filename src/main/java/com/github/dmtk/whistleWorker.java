@@ -144,11 +144,11 @@ public class whistleWorker{
 		    	   System.out.println(sequenceGetter.getSequenceMap());
 		    	   break;
 		       } else {
+	    		   reset(telnet);
 		    	   if(backflush)
 		    	   {
 		    		   break;
 		    	   } else {
-		    		   reset(telnet);
 		    		   continue;
 		    	   }
 		       }
