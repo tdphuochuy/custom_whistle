@@ -332,7 +332,7 @@ public class whistleWorker{
         int currentHour = currentTime.getHour();
 
         // Adjust the hour by adding 24
-        if(currentHour < 3)
+        if(currentHour < 4)
         {        	
         	currentHour += 24;
         }
@@ -399,7 +399,7 @@ public class whistleWorker{
 		LocalDate today;
 		LocalTime currentTime = LocalTime.now();
         int currentHour = currentTime.getHour();
-		if(currentHour < 3)
+		if(currentHour < 5)
 		{
 			today = LocalDate.now().minusDays(1);
 		} else {
