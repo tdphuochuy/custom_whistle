@@ -154,14 +154,17 @@ public class Telnet extends Terminal implements Runnable, TelnetNotificationHand
                 try {
                     tc.disconnect();
                 } catch (IOException e) {
+                	System.out.println("TEST1 disconnect");
                     log.error("Exception while connecting:" + e.getMessage());
 
                 }
             } catch (IOException e) {
+            	System.out.println("TEST2 disconnect");
                 log.error("Exception while connecting:" + e.getMessage());
 
             }
         }
+        System.out.println("TEST3 disconnected");
     }
 
     /**

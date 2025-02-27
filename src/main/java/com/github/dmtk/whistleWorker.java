@@ -185,7 +185,10 @@ public class whistleWorker{
 		{
 			System.out.println("Ready!!!!!!!!!");
 			telnet.sendCommand("\n");
-			setKillDate(telnet);
+			if(!setKillDate(telnet))
+			{
+				return false;
+			}
 			while(!checkCondition(telnet,"Order # [[0;7m"))
    			{
 				if(checkCondition(telnet,"Lot Table"))
@@ -215,7 +218,7 @@ public class whistleWorker{
 		}
 	}
 	
-	public void setKillDate(Telnet telnet) throws InterruptedException, IOException
+	public boolean setKillDate(Telnet telnet) throws InterruptedException, IOException
 	{
 		System.out.println("Setting kill date");
 		waitResponse(telnet,"Kill Date");
@@ -232,8 +235,22 @@ public class whistleWorker{
 				Thread.sleep(200);
 			}
 			System.out.println("Kill date set!!!!");
-			waitResponse(telnet,"Kill Date [[0;7m" + getDate("yyyy-MM-dd"));
+			int count = 0;
+			while(true)
+			{
+				count++;
+				System.out.println("Confirming kill date...");
+				if(checkCondition(telnet,"Kill Date [[0;7m" + getDate("yyyy-MM-dd")))
+				{
+					break;
+				}
+				if(count > 30)
+				{
+					return false;
+				}
+			}
 		}
+		return true;
 	}
 	
 	public void setCopiesQuantity(Telnet telnet,String copiesNum) throws IOException, InterruptedException
