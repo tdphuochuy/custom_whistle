@@ -223,10 +223,12 @@ public class Telnet extends Terminal implements Runnable, TelnetNotificationHand
         }
         try {
             tc.disconnect();
+            System.out.println("TesT 4 Disconnected");
         } catch (Exception e) {
             log.error("Exception while closing telnet:" + e.getMessage());
 
         }
+        System.out.println("TesT 5 Disconnected");
     }
 
     @Override

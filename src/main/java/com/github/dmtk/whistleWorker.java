@@ -244,6 +244,7 @@ public class whistleWorker{
 				{
 					break;
 				}
+				Thread.sleep(300);
 				if(count > 30)
 				{
 					return false;
