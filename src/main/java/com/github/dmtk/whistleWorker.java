@@ -88,8 +88,14 @@ public class whistleWorker{
 	   					break;
 	   				} else if (response.contains("Product not found on order"))
 	   				{
+	   					System.out.println("Product not found!");
 	   					notfound = true;
 	   					reset(telnet);
+	   					break;
+	   				} else if (response.contains("Invalid Order Number")) {
+	   					notfound = true;
+	   					reset(telnet);
+	   					System.out.println("Invalid Order Number!");
 	   					break;
 	   				}
 	   	    	   Thread.sleep(300);
