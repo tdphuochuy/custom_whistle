@@ -354,6 +354,7 @@ public class whistleWorker{
 
         // Get the current hour in 24-hour format
         int currentHour = currentTime.getHour();
+        //int currentHour = currentTime.getHour() + 1;
 
         // Adjust the hour by adding 24
         if(currentHour < 4)
