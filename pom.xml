@@ -42,6 +42,11 @@
   <artifactId>Java-WebSocket</artifactId>
   <version>1.6.0</version>
 </dependency>
+	<dependency>
+		<groupId>com.googlecode.json-simple</groupId>
+		<artifactId>json-simple</artifactId>
+		<version>1.1.1</version>
+	</dependency>
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

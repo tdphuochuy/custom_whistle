@@ -12,6 +12,9 @@ import java.util.concurrent.Executors;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class Main{
 	public static String username = "pmambo";
@@ -33,12 +36,31 @@ public class Main{
                     WebSocketClient client = new WebSocketClient(new URI("wss://projectmbymoneymine.com:8082")) {
                         @Override
                         public void onOpen(ServerHandshake handshakedata) {
-                            
+                            System.out.println("CONNECTED TO WEBSOCKET SERVER!");
+                            JSONObject obj = new JSONObject();
+                            obj.put("type", "auth");
+							obj.put("data", "whistle_server");
+                            send(obj.toJSONString());
                         }
 
                         @Override
                         public void onMessage(String message) {
-                            
+                			try {
+                            	JSONParser parser = new JSONParser();
+								JSONObject obj = (JSONObject)parser.parse(message);
+								String type = obj.get("type").toString();
+								if(type.equals("whistle_command"))
+								{
+									JSONObject data = (JSONObject) obj.get("data");
+									String prodNum = data.get("prodNum").toString();
+									String quantity = data.get("quantity").toString();
+									manager.addCommand(new Command(prodNum,quantity,"1"));
+								}
+							} catch (ParseException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+                			
                         }
 
                         @Override
