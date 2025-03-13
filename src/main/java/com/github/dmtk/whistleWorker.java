@@ -1,12 +1,22 @@
 package com.github.dmtk;
 
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class whistleWorker{
 	public int count = 0;
@@ -176,7 +186,7 @@ public class whistleWorker{
 	    }
 	}
 	
-	public boolean buildLabel(Telnet telnet) throws InterruptedException, IOException
+	public boolean buildLabel(Telnet telnet) throws InterruptedException, IOException, ParseException
 	{
 		while(!checkCondition(telnet,"([0;7m  OK"))
 		{
@@ -302,7 +312,7 @@ public class whistleWorker{
 	    telnet.sendCommand(copiesNum + "\n");
 	}
 	
-	public String checkBuildResponse(Telnet telnet) throws InterruptedException
+	public String checkBuildResponse(Telnet telnet) throws InterruptedException, IOException, ParseException
 	{
 		int count = 0;
 		while(true)
@@ -315,6 +325,7 @@ public class whistleWorker{
 				return "ready";
 			} else if(response.contains("Backflush"))
 			{
+				exactBackflush(response);
 				return "Backflush";
 			} else if (response.contains("([0;7m  OK"))
 			{
@@ -631,6 +642,55 @@ public class whistleWorker{
 
 	    return arrowCommand;
 	}
+	
+	public void exactBackflush(String input) throws IOException, ParseException
+	{
+		// Regular expression to match numbers, including decimal points
+        Pattern pattern = Pattern.compile("\\d+\\.\\d+|\\d+");
+        Matcher matcher = pattern.matcher(input);
+
+        // List to store numbers that are greater than 100000
+        List<Double> largeNumbers = new ArrayList<>();
+
+        while (matcher.find()) {
+            String numberStr = matcher.group();
+            double number = Double.parseDouble(numberStr);
+            
+            if (number > 100000) {
+                largeNumbers.add(number);
+            }
+        }
+        
+        for (double number : largeNumbers) {
+        	System.out.println("BACKFLUSH: " + number);
+        	saveBackflush(String.valueOf(number));
+        }
+	}
+	
+	public void saveBackflush(String number) throws IOException, ParseException
+	{
+		FileReader reader = new FileReader("backflush.json");
+
+        // Parse the JSON content
+        JSONParser parser = new JSONParser();
+        JSONObject jsonObject = (JSONObject) parser.parse(reader);
+        
+        if(!jsonObject.containsKey(prodNum))
+        {
+        	jsonObject.put(prodNum, new JSONArray());
+        }
+        
+        JSONArray array = (JSONArray) jsonObject.get(prodNum);
+        if(!array.contains(number))
+        {
+        	array.add(number);
+        }
+        
+        FileWriter writer = new FileWriter("backflush.json");
+        writer.write(jsonObject.toJSONString());
+        writer.flush();
+        writer.close();
+    }
 	
 	public void setData(Command command)
 	{
