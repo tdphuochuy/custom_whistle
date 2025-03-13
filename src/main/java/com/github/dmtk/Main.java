@@ -33,7 +33,7 @@ public class Main{
         executor.submit(() -> {
             while (true) {
                 try {
-                    WebSocketClient client = new WebSocketClient(new URI("wss://projectmbymoneymine.com:8082")) {
+                    WebSocketClient client = new WebSocketClient(new URI("ws://projectmbymoneymine.com:8082")) {
                         @Override
                         public void onOpen(ServerHandshake handshakedata) {
                             System.out.println("CONNECTED TO WEBSOCKET SERVER!");
@@ -52,11 +52,12 @@ public class Main{
 								if(type.equals("whistle_command"))
 								{
 									JSONObject data = (JSONObject) obj.get("data");
+									System.out.println(data);
 									String prodNum = data.get("prodNum").toString();
 									String quantity = data.get("quantity").toString();
 									manager.addCommand(new Command(prodNum,quantity,"1"));
 								}
-							} catch (ParseException e) {
+							} catch (Exception e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}

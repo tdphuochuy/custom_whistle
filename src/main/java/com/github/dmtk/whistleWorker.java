@@ -56,13 +56,24 @@ public class whistleWorker{
 	   notfound = false;
        outer:while(true)
        {
+    	   if(Integer.parseInt(quantity) > 5000)
+    	   {
+    		   System.out.println("Invalid quantity, skipping...");
+    		   break;
+    	   }
     	   if(checkCondition(telnet,"Order # [[0;7m") && !checkCondition(telnet,"Prod [[0;7m"))
     	   {
     		   telnet.sendCommand(orderNum + "\n");
     	   }
-    	   System.out.println("Waiting for production to be ready...");
-           //waitResponse(telnet,"Prod [[0;7m");
+    	   System.out.println("Waiting for order to be ready...");
+    	    //waitResponse(telnet,"Prod [[0;7m");
            try {
+        	   if(!verifyOrder(telnet))
+        	   {
+        		   reset(telnet);
+        		   Thread.sleep(300);
+        		   continue outer;
+        	   }
 	           while(true)
 	           {
 	   				String response = telnet.getResponse();
@@ -222,6 +233,25 @@ public class whistleWorker{
 			System.out.println(buildResponse);
 			return false;
 		}
+	}
+	
+	public boolean verifyOrder(Telnet telnet) throws InterruptedException
+	{
+		int count = 0;
+ 	   while(true)
+ 	   {
+ 		   	count++;
+				System.out.println("Verifying order number filled...");
+				if(checkCondition(telnet,"[" + orderNum))
+				{
+					return true;
+				}
+				Thread.sleep(300);
+				if(count > 10)
+				{
+					return false;
+				}
+ 	   }
 	}
 	
 	public boolean setKillDate(Telnet telnet) throws InterruptedException, IOException
