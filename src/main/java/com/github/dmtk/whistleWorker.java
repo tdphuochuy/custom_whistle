@@ -286,7 +286,7 @@ public class whistleWorker{
 			{
 				count++;
 				System.out.println("Confirming kill date...");
-				if(checkCondition(telnet,"Kill Date [[0;7m" + getDate("yyyy-MM-dd")))
+				if(checkCondition(telnet,"Kill Date [[0;7m" + getDate("yyyy-MM-dd") + " "))
 				{
 					break;
 				}
