@@ -48,14 +48,24 @@ public class Main{
                 			try {
                             	JSONParser parser = new JSONParser();
 								JSONObject obj = (JSONObject)parser.parse(message);
-								String type = obj.get("type").toString();
+								System.out.println(obj);								String type = obj.get("type").toString();
 								if(type.equals("whistle_command"))
 								{
 									JSONObject data = (JSONObject) obj.get("data");
-									System.out.println(data);
 									String prodNum = data.get("prodNum").toString();
 									String quantity = data.get("quantity").toString();
 									manager.addCommand(new Command(prodNum,quantity,"1"));
+								} else if (type.equals("whistle_order_request"))
+								{
+									JSONObject data = (JSONObject) obj.get("data");
+									String orderNum = data.get("orderNum").toString();
+									String html = manager.getOrderHTML(orderNum);
+									
+									JSONObject responseObj = new JSONObject();
+									responseObj.put("type","whistle_data_response");
+									responseObj.put("data",html);
+									
+									send(responseObj.toJSONString());
 								}
 							} catch (Exception e) {
 								// TODO Auto-generated catch block

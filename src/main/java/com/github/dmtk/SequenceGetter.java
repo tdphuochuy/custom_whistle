@@ -107,6 +107,46 @@ public class SequenceGetter{
 		return getSequenceLocal(itemNum,packNum,getHour(),0);
 	}
 	
+	public String getOrderHTML(String orderNum)
+	{
+		OkHttpClient client = new OkHttpClient();
+		FormBody formBody = new FormBody.Builder()
+                .add("fileName", "reports/SingleOrderProductionViewer.txt")
+                .add("Order", orderNum)
+                .add("submit1", "Go")
+                .add("r", "XMLReport")
+                .add("f", "n")
+                .add("session", sessionId)
+                .build();
+		
+		Request request = new Request.Builder()
+                .url("http://whistleclient/cgi-bin/yield/") // Example URL
+                .post(formBody)
+                .build();
+		
+		try (
+				Response response = client.newCall(request).execute()) {
+            if (response.code() == 200) {
+            	String body = response.body().string();
+            	
+            	if(body.contains("Login") && body.contains("Password"))
+            	{
+            		sessionId = getSessionId();
+            		return getOrderHTML(orderNum);
+            	} else {
+                	return body;
+            	}
+      
+            } else {
+            	System.out.println(response.code());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+		
+		return "<h1>Error occured! Unable to get order response</h1>";
+	}
+	
 	public int getSequenceLocal(String itemNum,String packNum,int hour,int sequence)
 	{
 		String keyName = itemNum + packNum;
