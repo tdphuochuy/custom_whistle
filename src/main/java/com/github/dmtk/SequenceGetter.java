@@ -245,7 +245,7 @@ public class SequenceGetter{
         int currentHour = currentTime.getHour() + 1;
 
         // Adjust the hour by adding 24
-        if(currentHour < 3)
+        if(currentHour < 4)
         {        	
         	currentHour += 24;
         }
